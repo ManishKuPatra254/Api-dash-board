@@ -1,6 +1,5 @@
 import axios from "axios";
-
-
+const API_URL: string = import.meta.env.VITE_API_URL as string;
 
 // get all document
 
@@ -23,10 +22,12 @@ interface Document {
   createdAt: string;
 }
 
-export const getDocuments = async (token: string): Promise<DocumentResponse> => {
+export const getDocuments = async (
+  token: string
+): Promise<DocumentResponse> => {
   try {
     const response = await axios.get<DocumentResponse>(
-      "https://kai-rbh7.onrender.com/api/documents",
+      `${API_URL}/api/documents`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -42,7 +43,6 @@ export const getDocuments = async (token: string): Promise<DocumentResponse> => 
     throw error;
   }
 };
-
 
 // get doucument by id
 
@@ -68,7 +68,7 @@ export const getDocumentDetails = async (
 ): Promise<DocumentResponse> => {
   try {
     const response = await axios.get<DocumentResponse>(
-      `https://kai-rbh7.onrender.com/api/documents/${documentId}`,
+      `${API_URL}/api/documents/${documentId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token in headers
@@ -84,25 +84,3 @@ export const getDocumentDetails = async (
     throw error;
   }
 };
-
-// delte documents by id 
-
-export const deleteDocument = async (token: string, documentId: string): Promise<void> => {
-  try {
-    const response = await axios.delete(
-      `http://localhost:3000/api/documents/${documentId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("Document deleted successfully:", response.data);
-  } catch (error) {
-    console.error("Error deleting document:", error);
-    throw error;
-  }
-};
-

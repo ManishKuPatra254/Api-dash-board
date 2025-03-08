@@ -1,4 +1,5 @@
 import axios from "axios";
+const API_URL: string = import.meta.env.VITE_API_URL as string;
 
 interface ConversationResponse {
   success: boolean;
@@ -20,7 +21,7 @@ export const createConversation = async (
 ): Promise<ConversationResponse> => {
   try {
     const response = await axios.post<ConversationResponse>(
-      "https://kai-rbh7.onrender.com/api/conversations",
+      `${API_URL}/api/conversations`,
       {
         title,
         documentIds,
@@ -41,45 +42,42 @@ export const createConversation = async (
   }
 };
 
-
-// get all conversation 
+// get all conversation
 
 interface Conversation {
-    _id: string;
-    title: string;
-    messages: any[];
-    documentIds: string[];
-    createdAt: string;
-    updatedAt: string;
-    __v: number;
-  }
-  
-  interface ConversationsResponse {
-    success: boolean;
-    count: number;
-    data: Conversation[];
-  }
-  
-  export const getAllConversations = async (
-    token: string
-  ): Promise<ConversationsResponse> => {
-    try {
-      const response = await axios.get<ConversationsResponse>(
-        "https://kai-rbh7.onrender.com/api/conversations",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-  
-      console.log("Conversations:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching conversations:", error);
-      throw error;
-    }
-  };
+  _id: string;
+  title: string;
+  messages: any[];
+  documentIds: string[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 
+interface ConversationsResponse {
+  success: boolean;
+  count: number;
+  data: Conversation[];
+}
 
+export const getAllConversations = async (
+  token: string
+): Promise<ConversationsResponse> => {
+  try {
+    const response = await axios.get<ConversationsResponse>(
+      `${API_URL}/api/conversations`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Conversations:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+    throw error;
+  }
+};

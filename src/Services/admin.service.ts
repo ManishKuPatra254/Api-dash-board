@@ -1,5 +1,5 @@
 import axios from "axios";
-
+const API_URL: string = import.meta.env.VITE_API_URL as string;
 interface ReportSummaryResponse {
   success: boolean;
   data: {
@@ -18,11 +18,11 @@ export const getReportSummary = async (
 ): Promise<ReportSummaryResponse> => {
   try {
     const response = await axios.get<ReportSummaryResponse>(
-      `https://kai-rbh7.onrender.com/api/reports/summary`,
+      `${API_URL}/api/reports/summary`,
       {
         params: { startDate, endDate }, // Send query parameters correctly
         headers: {
-          "Authorization": `Bearer ${token}`, // Pass the token in headers
+          Authorization: `Bearer ${token}`, // Pass the token in headers
           "Content-Type": "application/json",
         },
       }
