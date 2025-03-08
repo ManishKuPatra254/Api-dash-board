@@ -2,9 +2,6 @@ import axios from "axios";
 import Cookies from "js-cookie";
 const API_URL: string = import.meta.env.VITE_API_URL as string;
 
-const token = localStorage.getItem("token") || "";
-console.log(token);
-
 // register ts api ...................................
 
 interface FormData {
