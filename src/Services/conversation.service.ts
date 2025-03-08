@@ -71,7 +71,7 @@ interface Conversation {
   _id: string;
   title: string;
   messages: any[];
-  documentIds: string[];
+  documentIds: string[] | Document[];
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -147,7 +147,7 @@ interface Conversation {
   _id: string;
   title: string;
   messages: any[];
-  documentIds: any[]; // Change from string[] to Document[]
+  documentIds: Document[] | string[]; 
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -161,7 +161,7 @@ interface ApiResponse {
 
 export const getConversationById = async (
   conversationId: string
-): Promise<ConversationResponse> => {
+): Promise<ApiResponse> => {
   try {
     const logins = Cookies.get("logins");
     let token = null;
@@ -203,3 +203,4 @@ export const getConversationById = async (
     throw error;
   }
 };
+
