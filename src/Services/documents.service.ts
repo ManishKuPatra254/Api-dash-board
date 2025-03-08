@@ -84,3 +84,25 @@ export const getDocumentDetails = async (
     throw error;
   }
 };
+
+// delte documents by id 
+
+export const deleteDocument = async (token: string, documentId: string): Promise<void> => {
+  try {
+    const response = await axios.delete(
+      `http://localhost:3000/api/documents/${documentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Document deleted successfully:", response.data);
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    throw error;
+  }
+};
+
