@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 const API_URL: string = import.meta.env.VITE_API_URL as string;
 
 interface ConversationResponse {
@@ -15,11 +16,33 @@ interface ConversationResponse {
 }
 
 export const createConversation = async (
-  token: string,
   title: string,
   documentIds: string[]
 ): Promise<ConversationResponse> => {
   try {
+
+    const logins = Cookies.get("logins");
+    let token = null;
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
     const response = await axios.post<ConversationResponse>(
       `${API_URL}/api/conversations`,
       {
@@ -48,7 +71,7 @@ interface Conversation {
   _id: string;
   title: string;
   messages: any[];
-  documentIds: string[];
+  documentIds: string[] | Document[];
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -61,9 +84,31 @@ interface ConversationsResponse {
 }
 
 export const getAllConversations = async (
-  token: string
 ): Promise<ConversationsResponse> => {
   try {
+
+    const logins = Cookies.get("logins");
+    let token = null;
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
     const response = await axios.get<ConversationsResponse>(
       `${API_URL}/api/conversations`,
       {
@@ -81,3 +126,81 @@ export const getAllConversations = async (
     throw error;
   }
 };
+
+// get conversation by id
+
+interface Document {
+  _id: string;
+  fileName: string;
+  originalName: string;
+  fileType: string;
+  fileSize: number;
+  filePath: string;
+  extractedText: string;
+  processingStatus: string;
+  processingError: string | null;
+  createdAt: string;
+  __v: number;
+}
+
+interface Conversation {
+  _id: string;
+  title: string;
+  messages: any[];
+  documentIds: Document[] | string[]; 
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+
+interface ApiResponse {
+  success: boolean;
+  data: Conversation;
+}
+
+export const getConversationById = async (
+  conversationId: string
+): Promise<ApiResponse> => {
+  try {
+    const logins = Cookies.get("logins");
+    let token = null;
+
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
+    const response = await axios.get<ConversationResponse>(
+      `${API_URL}/api/conversations/${conversationId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(response.data, "Conversation Details Response");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching conversation:", error);
+    throw error;
+  }
+};
+

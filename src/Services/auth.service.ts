@@ -106,6 +106,7 @@ export const logOutUser = async (
 ): Promise<LogoutResponse> => {
   console.log(formData);
   try {
+    
     const response = await axios.post<LogoutResponse>(
       `${API_URL}/api/auth/logout`,
       formData
