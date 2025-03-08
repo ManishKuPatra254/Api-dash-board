@@ -9,7 +9,7 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import { TrendingUp } from "lucide-react";
+import { Download, TrendingUp } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -27,6 +27,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import UserEngagement from "./UserEngagement";
+import { Button } from "@/components/ui/button";
 
 const chartData = [
   { month: "January", desktop: 186, mobile: 80 },
@@ -60,8 +61,70 @@ export default function UserDashboard() {
   return (
     <div>
       <Layout>
-        <div className="p-1 space-y-6">
-          <h1 className="text-3xl font-semibold">Dashboard Analytics</h1>
+        <div className="p-4 md:p-6 space-y-8">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">
+                  Dashboard Analytics
+                </h1>
+                <p className="text-muted-foreground mt-1 text-sm">
+                  Track your performance and insights
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <Button variant="outline" className="text-xs" size="sm">
+                  <Download className="h-4 w-4" />
+                  Download Report
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+              <Card className="">
+                <CardContent className="pt-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm text-muted-foreground">
+                      Total Users
+                    </span>
+                    <span className="text-2xl font-bold">2,543</span>
+                    <span className="text-sm text-green-600 flex items-center gap-1">
+                      <TrendingUp className="h-4 w-4" />
+                      +12.5%
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="">
+                <CardContent className="pt-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm text-muted-foreground">
+                      Active Sessions
+                    </span>
+                    <span className="text-2xl font-bold">1,420</span>
+                    <span className="text-sm text-green-600 flex items-center gap-1">
+                      <TrendingUp className="h-4 w-4" />
+                      +5.2%
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="">
+                <CardContent className="pt-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm text-muted-foreground">
+                      Avg. Session Time
+                    </span>
+                    <span className="text-2xl font-bold">4m 32s</span>
+                    <span className="text-sm text-green-600 flex items-center gap-1">
+                      <TrendingUp className="h-4 w-4" />
+                      +8.4%
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Total Data Sent/Received */}
