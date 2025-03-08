@@ -74,27 +74,12 @@ const Layout = ({ children }: LayoutProps) => {
             </div>
 
             {/* Middle - Navigation Menu */}
-            <NavigationMenu>
+            <NavigationMenu className="flex items-center gap-4">
+              <Button variant="outline" className="text-xs">
+                <LayoutDashboard className="w-3.5 h-3.5 mr-2" />
+                Dashboard
+              </Button>
               <NavigationMenuList className="hidden sm:flex space-x-4">
-                <NavigationMenuItem className="border rounded-md">
-                  <NavigationMenuTrigger className="text-xs">
-                    <LayoutDashboard className="w-3.5 h-3.5 mr-2" /> Dashboard
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 w-[400px]">
-                      <ListItem href="/dashboard/overview" title="Overview">
-                        Monitor real-time data and key performance indicators
-                      </ListItem>
-                      <ListItem href="/dashboard/analytics" title="Analytics">
-                        Track user behavior and engagement metrics
-                      </ListItem>
-                      <ListItem href="/dashboard/reports" title="Reports">
-                        Generate and export custom reports
-                      </ListItem>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-
                 <NavigationMenuItem className="border rounded-md">
                   <NavigationMenuTrigger className="text-xs">
                     <ChartPie className="w-3.5 h-3.5 mr-2" /> Analytics

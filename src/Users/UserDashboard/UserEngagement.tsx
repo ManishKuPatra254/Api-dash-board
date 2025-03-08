@@ -14,6 +14,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis } from "recharts";
+import BillingAll from "../Billing/Billing";
 
 const engagementData = [
   { month: "Jan", users: 300000 },
@@ -106,6 +107,7 @@ export default function UserEngagement() {
           </ChartContainer>
         </div>
       </CardContent>
+      <BillingAll />
     </Card>
   );
 }
