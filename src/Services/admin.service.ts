@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 const API_URL: string = import.meta.env.VITE_API_URL as string;
 interface ReportSummaryResponse {
   success: boolean;
@@ -14,9 +15,31 @@ interface ReportSummaryResponse {
 export const getReportSummary = async (
   startDate: string,
   endDate: string,
-  token: string // Pass token as a parameter
 ): Promise<ReportSummaryResponse> => {
   try {
+
+    const logins = Cookies.get("logins");
+    let token = null;
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
     const response = await axios.get<ReportSummaryResponse>(
       `${API_URL}/api/reports/summary`,
       {
