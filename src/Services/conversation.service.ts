@@ -204,3 +204,54 @@ export const getConversationById = async (
   }
 };
 
+// delete by id 
+
+interface DeleteConversationResponse {
+  success: boolean;
+  data: {}; 
+}
+
+export const deleteConversationById = async (conversationId: string): Promise<DeleteConversationResponse> => {
+  try {
+    const logins = Cookies.get("logins");
+    let token = null;
+
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
+    const response = await axios.delete<DeleteConversationResponse>(
+      `${API_URL}/api/conversations/${conversationId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Conversation Deleted:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting conversation:", error);
+    throw error;
+  }
+};
+
+
