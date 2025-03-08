@@ -9,37 +9,43 @@ export default function BillingAll() {
       <Layout>
         <div className="flex flex-col gap-8">
           {/* Payment Method Section */}
-          <section className="bg-white p-6 rounded-lg shadow-sm">
+          <section className="bg-background p-6 rounded-lg border">
             <h2 className="text-xl font-semibold mb-2">Payment Method</h2>
-            <p className="text-gray-500 text-sm mb-4">
+            <p className="text-muted-foreground text-sm mb-4">
               Manage your preferred payment methods effortlessly.
             </p>
 
             <div className="flex items-center justify-between border p-4 rounded-lg">
               <div className="flex items-center gap-4">
                 <div className="w-12">
-                  <img src="/visa-logo.png" alt="Visa" className="w-full" />
+                  <CreditCard className="w-6 h-6" />
                 </div>
                 <div>
                   <p className="font-medium">Visa **** 9921</p>
-                  <p className="text-sm text-gray-500">Expires on 09/25</p>
+                  <p className="text-xs text-muted-foreground">
+                    Expires on 09/25
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
-                <Button variant="outline">Manage</Button>
-                <Button variant="outline">Add Payment Method</Button>
-                <Button>Add Payment</Button>
+                <Button variant="outline" className="text-xs">
+                  Manage
+                </Button>
+                <Button variant="outline" className="text-xs">
+                  Add Payment Method
+                </Button>
+                <Button className="text-xs">Add Payment</Button>
               </div>
             </div>
           </section>
 
           {/* Plans Section */}
-          <section className="bg-white p-6 rounded-lg shadow-sm">
+          <section className="bg-background p-6 rounded-lg border">
             <h2 className="text-xl font-semibold mb-2">
               Choose a Plan That Fits Your Needs
             </h2>
-            <p className="text-gray-500 text-sm mb-6">
+            <p className="text-muted-foreground text-sm mb-6">
               Upgrade or modify your plan anytime to match your evolving
               requirements.
             </p>
@@ -67,7 +73,7 @@ export default function BillingAll() {
                     <li>• Community Support</li>
                   </ul>
                 </div>
-                <Button className="w-full" variant="secondary">
+                <Button className="w-full text-xs" variant="secondary">
                   Active
                 </Button>
               </div>
@@ -96,7 +102,7 @@ export default function BillingAll() {
                     <li>• Team collaboration tools</li>
                   </ul>
                 </div>
-                <Button className="w-full">Change Plan</Button>
+                <Button className="w-full text-xs">Change Plan</Button>
               </div>
 
               {/* Enterprise Plan */}
@@ -123,15 +129,15 @@ export default function BillingAll() {
                     <li>• VIP onboarding & training</li>
                   </ul>
                 </div>
-                <Button className="w-full">Contact Us</Button>
+                <Button className="w-full text-xs">Contact Us</Button>
               </div>
             </div>
           </section>
 
           {/* Billing History Section */}
-          <section className="bg-white p-6 rounded-lg shadow-sm">
+          <section className="bg-background p-6 rounded-lg border">
             <h2 className="text-xl font-semibold mb-2">Billing History</h2>
-            <p className="text-gray-500 text-sm mb-6">
+            <p className="text-muted-foreground text-sm mb-6">
               Download past invoices, and track your subscription status with
               ease.
             </p>

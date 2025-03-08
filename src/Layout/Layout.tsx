@@ -8,7 +8,6 @@ import {
   LogOut,
   NotepadText,
   Settings,
-  Workflow,
 } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import {
@@ -32,7 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getProfileAll, ProfileResponse } from "@/Services/auth.service";
 import { toast } from "sonner";
 
@@ -64,9 +63,9 @@ const Layout = ({ children }: LayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-accent/10">
       {/* Navigation Bar */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div className="px-20 sm:px-6 lg:px-20">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
@@ -75,10 +74,13 @@ const Layout = ({ children }: LayoutProps) => {
 
             {/* Middle - Navigation Menu */}
             <NavigationMenu className="flex items-center gap-4">
-              <Button variant="outline" className="text-xs">
-                <LayoutDashboard className="w-3.5 h-3.5 mr-2" />
-                Dashboard
-              </Button>
+              <Link to="/dashboard">
+                <Button variant="outline" className="text-xs">
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  Dashboard
+                </Button>
+              </Link>
+
               <NavigationMenuList className="hidden sm:flex space-x-4">
                 <NavigationMenuItem className="border rounded-md">
                   <NavigationMenuTrigger className="text-xs">
@@ -105,26 +107,13 @@ const Layout = ({ children }: LayoutProps) => {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-                <NavigationMenuItem className="border rounded-md">
-                  <NavigationMenuTrigger className="text-xs">
-                    <Workflow className="w-3.5 h-3.5 mr-2" /> Integration
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 w-[400px]">
-                      <ListItem
-                        href="/integration/apis"
-                        title="API Integration"
-                      >
-                        Connect and manage third-party APIs
-                      </ListItem>
-                      <ListItem href="/integration/webhooks" title="Webhooks">
-                        Set up and monitor webhook endpoints
-                      </ListItem>
-                      <ListItem href="/integration/plugins" title="Plugins">
-                        Browse and install platform plugins
-                      </ListItem>
-                    </ul>
-                  </NavigationMenuContent>
+                <NavigationMenuItem className="rounded-md">
+                  <Link to="/billing">
+                    <Button variant="outline" className="text-xs">
+                      <CreditCard className="w-3.5 h-3.5" />
+                      Billing
+                    </Button>
+                  </Link>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem className="border rounded-md">
