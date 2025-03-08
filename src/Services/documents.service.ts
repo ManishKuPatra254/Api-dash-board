@@ -176,3 +176,52 @@ export const uploadDocument = async (file: File): Promise<DocumentResponse> => {
     throw error;
   }
 };
+
+// delete by id 
+
+// delete document by ID
+
+export const deleteDocument = async (documentId: string): Promise<{ success: boolean; data: {} }> => {
+  try {
+    const logins = Cookies.get("logins");
+    let token = null;
+
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
+    const response = await axios.delete<{ success: boolean; data: {} }>(
+      `${API_URL}/api/documents/${documentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Document Deleted Successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    throw error;
+  }
+};
+
+
