@@ -3,7 +3,7 @@ import LoginPage from "./auth/loginforn";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import UserDashboard from "./Users/UserDashboard/Dashboard";
 import BillingAll from "./Users/Billing/Billing";
-
+import Conversations1 from "./Users/Conversations/Conversations1";
 function App() {
   return (
     <Fragment>
@@ -12,6 +12,7 @@ function App() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/billing" element={<BillingAll />} />
+          <Route path="/conversation/start" element={<Conversations1 />} />
         </Routes>
       </BrowserRouter>
     </Fragment>

@@ -15,12 +15,15 @@ interface ConversationResponse {
   };
 }
 
+interface CreateConversationRequest {
+  title: string;
+  documentIds: string[];
+}
+
 export const createConversation = async (
-  title: string,
-  documentIds: string[]
+  formData: CreateConversationRequest
 ): Promise<ConversationResponse> => {
   try {
-
     const logins = Cookies.get("logins");
     let token = null;
     if (logins) {
@@ -43,12 +46,9 @@ export const createConversation = async (
       throw new Error("No valid token found for the specified role.");
     }
 
-    const response = await axios.post<ConversationResponse>(
+    const response = await axios.post(
       `${API_URL}/api/conversations`,
-      {
-        title,
-        documentIds,
-      },
+      formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -83,10 +83,8 @@ interface ConversationsResponse {
   data: Conversation[];
 }
 
-export const getAllConversations = async (
-): Promise<ConversationsResponse> => {
+export const getAllConversations = async (): Promise<ConversationsResponse> => {
   try {
-
     const logins = Cookies.get("logins");
     let token = null;
     if (logins) {
@@ -147,12 +145,11 @@ interface Conversation {
   _id: string;
   title: string;
   messages: any[];
-  documentIds: Document[] | string[]; 
+  documentIds: Document[] | string[];
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
-
 
 interface ApiResponse {
   success: boolean;
@@ -204,14 +201,16 @@ export const getConversationById = async (
   }
 };
 
-// delete by id 
+// delete by id
 
 interface DeleteConversationResponse {
   success: boolean;
-  data: {}; 
+  data: {};
 }
 
-export const deleteConversationById = async (conversationId: string): Promise<DeleteConversationResponse> => {
+export const deleteConversationById = async (
+  conversationId: string
+): Promise<DeleteConversationResponse> => {
   try {
     const logins = Cookies.get("logins");
     let token = null;
@@ -253,5 +252,3 @@ export const deleteConversationById = async (conversationId: string): Promise<De
     throw error;
   }
 };
-
-

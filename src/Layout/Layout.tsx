@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import {
   BadgeCheck,
   Bell,
-  ChartPie,
   CreditCard,
   LayoutDashboard,
   LogOut,
   NotepadText,
+  Podcast,
   Settings,
 } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
@@ -84,24 +84,27 @@ const Layout = ({ children }: LayoutProps) => {
               <NavigationMenuList className="hidden sm:flex space-x-4">
                 <NavigationMenuItem className="border rounded-md">
                   <NavigationMenuTrigger className="text-xs">
-                    <ChartPie className="w-3.5 h-3.5 mr-2" /> Analytics
+                    <Podcast className="w-3.5 h-3.5 mr-2" /> Conversation
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid gap-3 p-4 w-[400px]">
                       <ListItem
-                        href="/analytics/user-behavior"
+                        href="/conversation/user-behavior"
                         title="User Behavior"
                       >
                         Understand how users interact with your platform
                       </ListItem>
                       <ListItem
-                        href="/analytics/conversion"
-                        title="Conversion Analysis"
+                        href="/conversation/start"
+                        title="Start Conversation"
                       >
-                        Track conversion rates and optimization metrics
+                        Start a new conversation
                       </ListItem>
-                      <ListItem href="/analytics/retention" title="Retention">
-                        Monitor user retention and engagement patterns
+                      <ListItem
+                        href="/conversation/history"
+                        title="Conversation History"
+                      >
+                        View your conversation history
                       </ListItem>
                     </ul>
                   </NavigationMenuContent>
