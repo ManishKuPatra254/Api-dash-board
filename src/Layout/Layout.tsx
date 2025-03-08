@@ -8,9 +8,8 @@ import {
   LogOut,
   NotepadText,
   Settings,
-  Workflow,
 } from "lucide-react";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -32,7 +31,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { getProfileAll, ProfileResponse } from "@/Services/auth.service";
+import { toast } from "sonner";
 
 interface LayoutProps {
   children: ReactNode;
@@ -40,6 +41,21 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<ProfileResponse | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profileData = await getProfileAll();
+        setProfile(profileData);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+        toast.error("Failed to fetch profile");
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
     Cookies.remove("tokens");
@@ -47,9 +63,9 @@ const Layout = ({ children }: LayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-accent/10">
       {/* Navigation Bar */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div className="px-20 sm:px-6 lg:px-20">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
@@ -57,27 +73,15 @@ const Layout = ({ children }: LayoutProps) => {
             </div>
 
             {/* Middle - Navigation Menu */}
-            <NavigationMenu>
-              <NavigationMenuList className="hidden sm:flex space-x-4">
-                <NavigationMenuItem className="border rounded-md">
-                  <NavigationMenuTrigger className="text-xs">
-                    <LayoutDashboard className="w-3.5 h-3.5 mr-2" /> Dashboard
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 w-[400px]">
-                      <ListItem href="/dashboard/overview" title="Overview">
-                        Monitor real-time data and key performance indicators
-                      </ListItem>
-                      <ListItem href="/dashboard/analytics" title="Analytics">
-                        Track user behavior and engagement metrics
-                      </ListItem>
-                      <ListItem href="/dashboard/reports" title="Reports">
-                        Generate and export custom reports
-                      </ListItem>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
+            <NavigationMenu className="flex items-center gap-4">
+              <Link to="/dashboard">
+                <Button variant="outline" className="text-xs">
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  Dashboard
+                </Button>
+              </Link>
 
+              <NavigationMenuList className="hidden sm:flex space-x-4">
                 <NavigationMenuItem className="border rounded-md">
                   <NavigationMenuTrigger className="text-xs">
                     <ChartPie className="w-3.5 h-3.5 mr-2" /> Analytics
@@ -103,26 +107,13 @@ const Layout = ({ children }: LayoutProps) => {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-                <NavigationMenuItem className="border rounded-md">
-                  <NavigationMenuTrigger className="text-xs">
-                    <Workflow className="w-3.5 h-3.5 mr-2" /> Integration
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 w-[400px]">
-                      <ListItem
-                        href="/integration/apis"
-                        title="API Integration"
-                      >
-                        Connect and manage third-party APIs
-                      </ListItem>
-                      <ListItem href="/integration/webhooks" title="Webhooks">
-                        Set up and monitor webhook endpoints
-                      </ListItem>
-                      <ListItem href="/integration/plugins" title="Plugins">
-                        Browse and install platform plugins
-                      </ListItem>
-                    </ul>
-                  </NavigationMenuContent>
+                <NavigationMenuItem className="rounded-md">
+                  <Link to="/billing">
+                    <Button variant="outline" className="text-xs">
+                      <CreditCard className="w-3.5 h-3.5" />
+                      Billing
+                    </Button>
+                  </Link>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem className="border rounded-md">
@@ -181,16 +172,27 @@ const Layout = ({ children }: LayoutProps) => {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar>
+                  <Avatar className="bg-destructive">
                     <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
+                      src={profile?.data.name?.charAt(0).toUpperCase() || "U"}
+                      alt={profile?.data.name || ""}
                     />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarFallback className="text-sm bg-destructive text-background font-bold">
+                      {profile?.data.name?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">
+                        {profile?.data.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {profile?.data.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem>

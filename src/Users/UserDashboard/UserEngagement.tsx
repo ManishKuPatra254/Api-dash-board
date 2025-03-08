@@ -1,5 +1,12 @@
-"use client";
-// TODO: Add a tooltip to the chart
+import { Fragment, useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Card,
   CardContent,
@@ -7,105 +14,234 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getDocuments, uploadDocument } from "@/Services/documents.service";
+import { FileIcon, Loader2, Plus, Upload } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { LineChart, Line, CartesianGrid, XAxis, YAxis } from "recharts";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
-const engagementData = [
-  { month: "Jan", users: 300000 },
-  { month: "Feb", users: 500000 },
-  { month: "Mar", users: 650000 },
-  { month: "Apr", users: 600000 },
-  { month: "May", users: 550000 },
-  { month: "Jun", users: 600000 },
-  { month: "Jul", users: 650000 },
-  { month: "Aug", users: 720000 },
-];
+// Define the Document interface
+interface Document {
+  _id: string;
+  fileName: string;
+  originalName: string;
+  fileType: string;
+  fileSize: number;
+  processingStatus: string;
+  createdAt: string;
+}
 
-const chartConfig = {
-  users: {
-    label: "Users",
-    color: "hsl(210 100% 50%)", // Bright blue color
-  },
-} satisfies ChartConfig;
+export function DocumentTable() {
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-export default function UserEngagement() {
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  const fetchDocuments = async () => {
+    try {
+      const response = await getDocuments();
+      setDocuments(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to fetch documents");
+      setLoading(false);
+    }
+  };
+
+  // Function to format file size
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
+
+  // Function to format date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      // Check if file is PDF
+      if (file.type !== "application/pdf") {
+        toast.error("Please upload only PDF files");
+        e.target.value = ""; // Reset input
+        setSelectedFile(null);
+        return;
+      }
+
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUploadDocuments = async () => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await uploadDocument(selectedFile);
+      if (response.success) {
+        fetchDocuments(); // Refresh the documents list
+        setSelectedFile(null);
+        toast.success("File uploaded successfully");
+      } else {
+        throw new Error("Upload failed");
+      }
+    } catch (err) {
+      setError("Failed to upload file");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64 text-red-500">
+        {error}
+      </div>
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>User Engagement</CardTitle>
-        <CardDescription>Annual user engagement via API</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="relative">
-          <div className="absolute right-4 top-4">
-            <select className="rounded-md border bg-background px-2 py-1 text-sm">
-              <option>Yearly</option>
-              <option>Monthly</option>
-              <option>Weekly</option>
-            </select>
+    <Fragment>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Documents</CardTitle>
+            <CardDescription>A list of your recent documents.</CardDescription>
           </div>
-          <ChartContainer config={chartConfig}>
-            <LineChart
-              data={engagementData}
-              margin={{
-                top: 20,
-                right: 50,
-                left: 50,
-                bottom: 20,
-              }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                horizontal={true}
-                vertical={false}
-              />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <YAxis
-                tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={
-                  <ChartTooltipContent
-                    formatter={(value) =>
-                      `${(Number(value) / 1000).toFixed(0)}k`
-                    }
-                  />
-                }
-              />
-              <Line
-                type="monotone"
-                dataKey="users"
-                stroke="hsl(210 100% 50%)"
-                strokeWidth={2}
-                dot={{
-                  fill: "hsl(210 100% 50%)",
-                  r: 4,
-                }}
-                activeDot={{
-                  r: 6,
-                  fill: "hsl(210 100% 50%)",
-                  stroke: "white",
-                  strokeWidth: 2,
-                }}
-              />
-            </LineChart>
-          </ChartContainer>
-        </div>
-      </CardContent>
-    </Card>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm" className="text-xs">
+                <Plus className="h-4 w-4" />
+                Upload Document
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Upload Document</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Choose a file to upload to your document library.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="w-full space-y-2">
+                <Label htmlFor="file">File (PDF only)</Label>
+                <Input
+                  id="file"
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={handleFileChange}
+                  className="cursor-pointer"
+                />
+                {selectedFile && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Selected: {selectedFile.name}
+                  </p>
+                )}
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel
+                  className="text-xs"
+                  onClick={() => setSelectedFile(null)}
+                >
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleUploadDocuments}
+                  disabled={!selectedFile}
+                  className="text-xs"
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardHeader>
+        <CardContent>
+          <Table className="border rounded-md">
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="py-4 px-6">File Name</TableHead>
+                <TableHead className="py-4 px-6">Type</TableHead>
+                <TableHead className="py-4 px-6">Size</TableHead>
+                <TableHead className="py-4 px-6">Status</TableHead>
+                <TableHead className="py-4 px-6">Created At</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {documents.map((doc) => (
+                <TableRow
+                  key={doc._id}
+                  className="hover:bg-slate-50 transition-colors"
+                >
+                  <TableCell className="font-medium py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <FileIcon className="h-4 w-4 text-gray-500" />
+                      <span className="truncate">{doc.originalName}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-4 px-6">{doc.fileType}</TableCell>
+                  <TableCell className="py-4 px-6">
+                    {formatFileSize(doc.fileSize)}
+                  </TableCell>
+                  <TableCell className="py-4 px-6">
+                    <Badge
+                      variant="outline"
+                      className={`px-3 py-1 ${
+                        doc.processingStatus === "completed"
+                          ? "bg-green-50 text-green-700 border-green-200"
+                          : doc.processingStatus === "processing"
+                          ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+                          : "bg-red-50 text-red-700 border-red-200"
+                      }`}
+                    >
+                      {doc.processingStatus}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="py-4 px-6 text-gray-600">
+                    {formatDate(doc.createdAt)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </Fragment>
   );
 }

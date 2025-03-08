@@ -26,8 +26,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import UserEngagement from "./UserEngagement";
 import { Button } from "@/components/ui/button";
+import { DocumentTable } from "./UserEngagement";
 
 const chartData = [
   { month: "January", desktop: 186, mobile: 80 },
@@ -276,7 +276,7 @@ export default function UserDashboard() {
               </CardFooter>
             </Card>
           </div>
-          <UserEngagement />
+          <DocumentTable />
         </div>
       </Layout>
     </div>

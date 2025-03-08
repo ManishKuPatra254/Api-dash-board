@@ -1,15 +1,133 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-
 const API_URL: string = import.meta.env.VITE_API_URL as string;
 
-// get all document
-
-interface DocumentResponse {
+interface ConversationResponse {
   success: boolean;
-  count?: number;
-  data: Document[];
+  data: {
+    title: string;
+    messages: any[];
+    documentIds: string[];
+    _id: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
 }
+
+export const createConversation = async (
+  title: string,
+  documentIds: string[]
+): Promise<ConversationResponse> => {
+  try {
+
+    const logins = Cookies.get("logins");
+    let token = null;
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
+    const response = await axios.post<ConversationResponse>(
+      `${API_URL}/api/conversations`,
+      {
+        title,
+        documentIds,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Conversation Created:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating conversation:", error);
+    throw error;
+  }
+};
+
+// get all conversation
+
+interface Conversation {
+  _id: string;
+  title: string;
+  messages: any[];
+  documentIds: string[] | Document[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+interface ConversationsResponse {
+  success: boolean;
+  count: number;
+  data: Conversation[];
+}
+
+export const getAllConversations = async (
+): Promise<ConversationsResponse> => {
+  try {
+
+    const logins = Cookies.get("logins");
+    let token = null;
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
+    const response = await axios.get<ConversationsResponse>(
+      `${API_URL}/api/conversations`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Conversations:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+    throw error;
+  }
+};
+
+// get conversation by id
 
 interface Document {
   _id: string;
@@ -22,74 +140,32 @@ interface Document {
   processingStatus: string;
   processingError: string | null;
   createdAt: string;
+  __v: number;
 }
 
-export const getDocuments = async (): Promise<DocumentResponse> => {
-  try {
-    const logins = Cookies.get("logins");
-    let token = null;
-    if (logins) {
-      try {
-        const parsedLogins = JSON.parse(logins);
-        const currentLogin = parsedLogins.find(
-          (login: { token: string }) => login.token
-        );
+interface Conversation {
+  _id: string;
+  title: string;
+  messages: any[];
+  documentIds: Document[] | string[]; 
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 
-        if (currentLogin) {
-          token = currentLogin.token;
-        }
-      } catch (error: unknown) {
-        const err = error as Error;
-        console.error("Failed to parse logins cookie:", err.message);
-      }
-    }
 
-    if (!token) {
-      throw new Error("No valid token found for the specified role.");
-    }
-
-    const response = await axios.get<DocumentResponse>(
-      `${API_URL}/api/documents`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log(response.data, "Documents Response");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching documents:", error);
-    throw error;
-  }
-};
-
-// get doucument by id
-
-interface DocumentResponse {
+interface ApiResponse {
   success: boolean;
-  Document: {
-    _id: string;
-    fileName: string;
-    originalName: string;
-    fileType: string;
-    fileSize: number;
-    filePath: string;
-    extractedText: string;
-    processingStatus: string;
-    processingError: string | null;
-    createdAt: string;
-  };
+  data: Conversation;
 }
 
-export const getDocumentDetailsById = async (
-  documentId: string
-): Promise<DocumentResponse> => {
+export const getConversationById = async (
+  conversationId: string
+): Promise<ApiResponse> => {
   try {
     const logins = Cookies.get("logins");
     let token = null;
+
     if (logins) {
       try {
         const parsedLogins = JSON.parse(logins);
@@ -110,69 +186,21 @@ export const getDocumentDetailsById = async (
       throw new Error("No valid token found for the specified role.");
     }
 
-    const response = await axios.get<DocumentResponse>(
-      `${API_URL}/api/documents/${documentId}`,
+    const response = await axios.get<ConversationResponse>(
+      `${API_URL}/api/conversations/${conversationId}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in headers
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
     );
 
-    console.log(response.data, "Document Details Response");
+    console.log(response.data, "Conversation Details Response");
     return response.data;
   } catch (error) {
-    console.error("Document Fetch Error:", error);
+    console.error("Error fetching conversation:", error);
     throw error;
   }
 };
 
-// file upload
-
-export const uploadDocument = async (file: File): Promise<DocumentResponse> => {
-  try {
-    const logins = Cookies.get("logins");
-    let token = null;
-
-    if (logins) {
-      try {
-        const parsedLogins = JSON.parse(logins);
-        const currentLogin = parsedLogins.find(
-          (login: { token: string }) => login.token
-        );
-
-        if (currentLogin) {
-          token = currentLogin.token;
-        }
-      } catch (error: unknown) {
-        const err = error as Error;
-        console.error("Failed to parse logins cookie:", err.message);
-      }
-    }
-
-    if (!token) {
-      throw new Error("No valid token found for the specified role.");
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await axios.post<DocumentResponse>(
-      `${API_URL}/api/documents/upload`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("File Uploaded Successfully:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error uploading file:", error);
-    throw error;
-  }
-};
