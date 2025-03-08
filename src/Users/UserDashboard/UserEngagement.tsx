@@ -14,8 +14,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getDocuments, uploadDocument } from "@/Services/documents.service";
-import { FileIcon, Loader2, Plus, Upload } from "lucide-react";
+import {
+  deleteDocument,
+  getDocuments,
+  uploadDocument,
+} from "@/Services/documents.service";
+import { FileIcon, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+
 // Define the Document interface
 interface Document {
   _id: string;
@@ -49,6 +54,20 @@ export function DocumentTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleDelete = async (documentId: string) => {
+    try {
+      const response = await deleteDocument(documentId);
+      if (response.success=== true) {
+        setDocuments((prevDocuments) =>
+          prevDocuments.filter((doc) => doc._id !== documentId)
+      );
+      toast.success("Document deleted successfully!");
+      }
+    } catch (error) {
+      toast("Failed to delete document.");
+    }
+  };
 
   useEffect(() => {
     fetchDocuments();
@@ -193,7 +212,7 @@ export function DocumentTable() {
           </AlertDialog>
         </CardHeader>
         <CardContent>
-          <Table className="border rounded-md">
+          <Table className="border rounded-md ">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="py-4 px-6">File Name</TableHead>
@@ -201,6 +220,7 @@ export function DocumentTable() {
                 <TableHead className="py-4 px-6">Size</TableHead>
                 <TableHead className="py-4 px-6">Status</TableHead>
                 <TableHead className="py-4 px-6">Created At</TableHead>
+                <TableHead className="py-4 px-6">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -233,8 +253,21 @@ export function DocumentTable() {
                       {doc.processingStatus}
                     </Badge>
                   </TableCell>
+
                   <TableCell className="py-4 px-6 text-gray-600">
                     {formatDate(doc.createdAt)}
+                  </TableCell>
+
+                  <TableCell className="py-4 px-6 text-gray-600">
+                    <Button
+                      onClick={() => handleDelete(doc._id)} // Pass the correct document ID
+                      variant="destructive"
+                      size="sm"
+                      className="text-xs"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
