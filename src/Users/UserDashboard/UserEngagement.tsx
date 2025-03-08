@@ -129,7 +129,7 @@ export function DocumentTable() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64 text-red-500">
+      <div className="flex text-xs items-center justify-center h-64 text-destructive">
         {error}
       </div>
     );
