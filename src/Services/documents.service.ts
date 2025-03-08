@@ -1,11 +1,13 @@
 import axios from "axios";
+import Cookies from "js-cookie";
+
 const API_URL: string = import.meta.env.VITE_API_URL as string;
 
 // get all document
 
 interface DocumentResponse {
   success: boolean;
-  count: number;
+  count?: number;
   data: Document[];
 }
 
@@ -23,9 +25,31 @@ interface Document {
 }
 
 export const getDocuments = async (
-  token: string
 ): Promise<DocumentResponse> => {
   try {
+
+    const logins = Cookies.get("logins");
+    let token = null;
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
     const response = await axios.get<DocumentResponse>(
       `${API_URL}/api/documents`,
       {
@@ -64,9 +88,31 @@ interface DocumentResponse {
 
 export const getDocumentDetails = async (
   documentId: string,
-  token: string // Pass token as a parameter
 ): Promise<DocumentResponse> => {
   try {
+
+    const logins = Cookies.get("logins");
+    let token = null;
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
     const response = await axios.get<DocumentResponse>(
       `${API_URL}/api/documents/${documentId}`,
       {
@@ -81,6 +127,57 @@ export const getDocumentDetails = async (
     return response.data;
   } catch (error) {
     console.error("Document Fetch Error:", error);
+    throw error;
+  }
+};
+
+// file upload 
+
+export const uploadDocument = async (
+  file: File
+): Promise<DocumentResponse> => {
+  try {
+    const logins = Cookies.get("logins");
+    let token = null;
+
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
+
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await axios.post<DocumentResponse>(
+      `${API_URL}/api/documents/upload`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("File Uploaded Successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading file:", error);
     throw error;
   }
 };
