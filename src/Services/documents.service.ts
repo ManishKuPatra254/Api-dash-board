@@ -1,37 +1,86 @@
 import axios from "axios";
 
-interface ReportSummaryResponse {
+
+
+// get all document
+
+interface DocumentResponse {
   success: boolean;
-  data: {
-    totalReports: number;
-    completedReports: number;
-    pendingReports: number;
-    startDate: string;
-    endDate: string;
-  };
+  count: number;
+  data: Document[];
 }
 
-export const getReportSummary = async (
-  startDate: string,
-  endDate: string,
-  token: string // Pass token as a parameter
-): Promise<ReportSummaryResponse> => {
+interface Document {
+  _id: string;
+  fileName: string;
+  originalName: string;
+  fileType: string;
+  fileSize: number;
+  filePath: string;
+  extractedText: string;
+  processingStatus: string;
+  processingError: string | null;
+  createdAt: string;
+}
+
+export const getDocuments = async (token: string): Promise<DocumentResponse> => {
   try {
-    const response = await axios.get<ReportSummaryResponse>(
-      `https://kai-rbh7.onrender.com/api/reports/summary`,
+    const response = await axios.get<DocumentResponse>(
+      "https://kai-rbh7.onrender.com/api/documents",
       {
-        params: { startDate, endDate }, // Send query parameters correctly
         headers: {
-          "Authorization": `Bearer ${token}`, // Pass the token in headers
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
     );
 
-    console.log(response.data, "Report Summary Response");
+    console.log(response.data, "Documents Response");
     return response.data;
   } catch (error) {
-    console.error("Report Summary Fetch Error:", error);
+    console.error("Error fetching documents:", error);
+    throw error;
+  }
+};
+
+
+// get doucument by id
+
+interface DocumentResponse {
+  success: boolean;
+  Document: {
+    _id: string;
+    fileName: string;
+    originalName: string;
+    fileType: string;
+    fileSize: number;
+    filePath: string;
+    extractedText: string;
+    processingStatus: string;
+    processingError: string | null;
+    createdAt: string;
+  };
+}
+
+export const getDocumentDetails = async (
+  documentId: string,
+  token: string // Pass token as a parameter
+): Promise<DocumentResponse> => {
+  try {
+    const response = await axios.get<DocumentResponse>(
+      `https://kai-rbh7.onrender.com/api/documents/${documentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Pass the token in headers
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(response.data, "Document Details Response");
+    return response.data;
+  } catch (error) {
+    console.error("Document Fetch Error:", error);
     throw error;
   }
 };
