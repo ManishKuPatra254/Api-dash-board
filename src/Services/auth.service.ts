@@ -52,7 +52,7 @@ interface LoginResponse {
   token: string;
 }
 
-interface TokenData {
+interface LoginData {
   token: string;
 }
 
@@ -66,20 +66,18 @@ export const loginUser = async (
       formData
     );
 
-    // Create token data object
-    const tokenData: TokenData = {
-      token: btoa(response.data.token), // Encrypt token using base64
+    const newLogin: LoginData = {
+      token: response.data.token,
     };
 
-    // Get existing tokens or initialize empty array
-    const existingTokens = JSON.parse(Cookies.get("tokens") || "[]");
+    // Get existing logins or initialize empty array
+    const existingLogins = JSON.parse(Cookies.get("logins") || "[]");
 
-    // Add new token to array
-    existingTokens.push(tokenData);
+    // Add new login to array
+    existingLogins.push(newLogin);
 
-    // Store updated tokens array in cookies
-    Cookies.set("tokens", JSON.stringify(existingTokens), { expires: 7 });
-
+    // Store updated logins array in cookies
+    Cookies.set("logins", JSON.stringify([newLogin]));
     return response.data;
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -89,16 +87,6 @@ export const loginUser = async (
     }
     throw error;
   }
-};
-
-// Helper function to get decrypted token
-export const getDecryptedToken = (): string | null => {
-  const tokens = JSON.parse(Cookies.get("tokens") || "[]");
-  if (tokens.length === 0) return null;
-
-  // Get the latest token
-  const latestToken = tokens[tokens.length - 1];
-  return atob(latestToken.token);
 };
 
 // logout ts api ...................................
@@ -138,28 +126,55 @@ export const logOutUser = async (
 
 // me ts api ...................................
 
-interface MeResponse {
+export interface ProfileResponse {
   success: boolean;
   data: {
     id: string;
     name: string;
     email: string;
     role: string;
-    createdAt: string;
-    "--v": number;
   };
 }
 
-export const me = async (): Promise<MeResponse> => {
+export const getProfileAll = async (): Promise<ProfileResponse> => {
   try {
-    const response = await axios.get<MeResponse>(`${API_URL}/api/auth/me`);
+    const logins = Cookies.get("logins");
+    let token = null;
+    if (logins) {
+      try {
+        const parsedLogins = JSON.parse(logins);
+        const currentLogin = parsedLogins.find(
+          (login: { token: string }) => login.token
+        );
 
+        if (currentLogin) {
+          token = currentLogin.token;
+        }
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Failed to parse logins cookie:", err.message);
+      }
+    }
+
+    if (!token) {
+      throw new Error("No valid token found for the specified role.");
+    }
+
+    const response = await axios.get<ProfileResponse>(
+      `${API_URL}/api/auth/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.log("Login error", error.message);
+      console.log("Profile error", error.message);
     } else {
-      console.log("Login error", String(error));
+      console.log("Profile error", String(error));
     }
     throw error;
   }

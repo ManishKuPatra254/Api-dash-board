@@ -10,7 +10,7 @@ import {
   Settings,
   Workflow,
 } from "lucide-react";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -33,6 +33,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { getProfileAll, ProfileResponse } from "@/Services/auth.service";
+import { toast } from "sonner";
 
 interface LayoutProps {
   children: ReactNode;
@@ -40,6 +42,21 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<ProfileResponse | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profileData = await getProfileAll();
+        setProfile(profileData);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+        toast.error("Failed to fetch profile");
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
     Cookies.remove("tokens");
@@ -181,16 +198,27 @@ const Layout = ({ children }: LayoutProps) => {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar>
+                  <Avatar className="bg-destructive">
                     <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
+                      src={profile?.data.name?.charAt(0).toUpperCase() || "U"}
+                      alt={profile?.data.name || ""}
                     />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarFallback className="text-sm bg-destructive text-background font-bold">
+                      {profile?.data.name?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">
+                        {profile?.data.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {profile?.data.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
